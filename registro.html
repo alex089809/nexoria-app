@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nexoria Group — Registro</title>
+<style>
+:root{--bg:#0f1724;--accent:#6ee7b7;--muted:#9ca3af;--card: rgba(255,255,255,0.03);font-family:Inter,sans-serif;}
+html,body{height:100%;margin:0;background:var(--bg);color:#e6eef6}
+.wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.card{width:100%;max-width:420px;background:var(--card);padding:28px;border-radius:16px;text-align:center;box-shadow:0 10px 30px rgba(2,6,23,0.6);}
+h1{margin:0 0 8px;font-size:22px}
+p.lead{color:var(--muted);margin:0 0 18px;font-size:14px}
+.field{margin:10px 0;position:relative}
+input[type="text"], input[type="password"]{width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:#1e293b;color:#e6eef6;font-size:15px;outline:none;}
+input:focus{box-shadow:0 0 0 3px rgba(110,231,183,0.06); border-color:var(--accent)}
+.row{display:flex;gap:10px;align-items:center;justify-content:center;margin-top:12px}
+.btn{width:100%;padding:12px;border-radius:10px;border:none;font-weight:700;cursor:pointer;font-size:15px;background:linear-gradient(90deg,var(--accent),#34d399);color:#042028;}
+.link{color:var(--accent);text-decoration:none;font-weight:600}
+.small{color:var(--muted);font-size:13px;margin-top:12px}
+.show-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="card">
+<h1>Registro</h1>
+<p class="lead">Crea tu cuenta en Nexoria Group</p>
+
+<div class="field">
+<label for="name" style="display:block;text-align:left;color:var(--muted);font-size:13px;margin-bottom:6px">Nombre</label>
+<input id="name" type="text" placeholder="Tu nombre completo"/>
+</div>
+
+<div class="field">
+<label for="email" style="display:block;text-align:left;color:var(--muted);font-size:13px;margin-bottom:6px">Correo electrónico</label>
+<input id="email" type="text" placeholder="ejemplo@correo.com"/>
+</div>
+
+<div class="field">
+<label for="password" style="display:block;text-align:left;color:var(--muted);font-size:13px;margin-bottom:6px">Contraseña</label>
+<input id="password" type="password" placeholder="••••••••"/>
+<button id="togglePwd" class="show-toggle">Mostrar</button>
+</div>
+
+<div class="row">
+<button id="btnRegister" class="btn">Registrarse</button>
+</div>
+
+<div class="small" style="margin-top:14px">
+¿Ya tienes cuenta? <a href="login.html" class="link">Inicia sesión</a><br>
+Volver al <a href="index.html" class="link">inicio</a>
+</div>
+
+<div id="msg" class="small" style="margin-top:10px;color:var(--muted);display:none"></div>
+
+</div>
+</div>
+
+<script>
+const BASE = 'https://nexoria-app.onrender.com';
+const nameEl = document.getElementById('name');
+const emailEl = document.getElementById('email');
+const pwdEl = document.getElementById('password');
+const btn = document.getElementById('btnRegister');
+const msg = document.getElementById('msg');
+const toggle = document.getElementById('togglePwd');
+
+toggle.addEventListener('click',()=>{
+  const t = pwdEl.type==='password'?'text':'password';
+  pwdEl.type = t;
+  toggle.textContent = t==='password'?'Mostrar':'Ocultar';
+});
+
+btn.addEventListener('click', async ()=>{
+  const name = nameEl.value.trim();
+  const email = emailEl.value.trim();
+  const password = pwdEl.value;
+
+  if(!name){ alert('Ingresa tu nombre'); nameEl.focus(); return; }
+  if(!email){ alert('Ingresa tu correo'); emailEl.focus(); return; }
+  if(!password){ alert('Ingresa tu contraseña'); pwdEl.focus(); return; }
+
+  msg.style.display = 'block';
+  msg.style.color = '#9ca3af';
+  msg.textContent = 'Enviando código...';
+
+  try{
+    const res = await fetch(BASE+'/register',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ name,email,password })
+    });
+
+    if(res.ok){
+      const text = await res.text();
+      msg.style.color = '#6ee7b7';
+      msg.textContent = text || 'Código enviado ✅';
+    } else {
+      const text = await res.text().catch(()=>res.statusText);
+      msg.style.color = '#f97373';
+      msg.textContent = text || 'Error al enviar el código ❌';
+    }
+  } catch(err){
+    msg.style.color = '#f97373';
+    msg.textContent = 'Error de conexión';
+    console.error(err);
+  }
+});
+</script>
+</body>
+</html>
